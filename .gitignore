@@ -1,0 +1,8 @@
+*.egg-info
+build
+venv*
+*.swp
+.mypy_cache
+.python-version
+.venv
+*.json
