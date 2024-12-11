@@ -36,9 +36,12 @@ def run() -> None:
 
 
 @app.route("/map")
-def map() -> None:
+async def map() -> str:
     """
-    Render a map
+    Render a map.
+
+    Returns:
+        page (str): The rendered HTML for the page template.
 
     """
 
