@@ -38,7 +38,7 @@ def run() -> None:
     app.run(host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 5000)), use_reloader=bool(os.environ.get("RELOADER", True)))
 
 
-@app.route("/map")
+@app.route("/")
 async def map() -> str:
     """
     Render a map.
@@ -161,6 +161,20 @@ async def map() -> str:
     # Render the template with the map
     return flask.render_template("index.html", map_html=map_html)
 
+
+@app.route('/contact')
+@app.route('/data')
+@app.route('/map')
+async def placeholder() -> None:
+    """
+    Placeholder function which just calls the map page.
+
+    Returns:
+        map (str): The map HTML.
+    """
+
+    return await map()
+    
 
 if __name__ == "__main__":
 
