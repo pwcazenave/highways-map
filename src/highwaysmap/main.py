@@ -17,13 +17,16 @@ import folium
 import requests
 
 
-# Make the app globally available
-app = flask.Flask(__name__)
-
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger(__name__)
+
+# Make the app globally available and put the subscription key in it
+app = flask.Flask(__name__)
+app.key = os.environ.get("SUBSCRIPTION_KEY")
+if app.key is None:
+    raise ValueError("No National Highways Agency API key provided.")
 
 
 def run() -> None:
@@ -51,7 +54,7 @@ async def map() -> str:
     closures_file = Path('closures.json')
     if not closures_file.exists() or closures_file.stat().st_size == 0 or datetime.fromtimestamp(closures_file.stat().st_ctime, ZoneInfo('Europe/London')) < now - relativedelta(days=1):
         logger.info('Fetching fresh closures JSON')
-        closures_payload = requests.get(closures_url, headers={"X-Response-MediaType": "application/json", "X-Djson-Format": "DATEXII", "Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": key}).json()
+        closures_payload = requests.get(closures_url, headers={"X-Response-MediaType": "application/json", "X-Djson-Format": "DATEXII", "Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": app.key}).json()
         closures_file.write_text(json.dumps(closures_payload))
     else:
         logger.info('Loading existing closures JSON')
@@ -161,9 +164,4 @@ async def map() -> str:
 
 if __name__ == "__main__":
 
-    key = os.environ.get("SUBSCRIPTION_KEY")
-    if key is None:
-        raise ValueError("No National Highways Agency API key provided.")
-
     run()
-
