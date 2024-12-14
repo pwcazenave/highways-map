@@ -59,11 +59,32 @@ def run() -> None:
         )
 
 
+# Create a customised foluium Map class to nuke some of the baked in CSS (notably glyphicons_css).
+# This is because that interferes with my styling.
+#
+# I do realise that we're embedding a fully fledged HTML page _inside_ another HTML page. However,
+# as hacky as this is, we're lucky that browsers are simply incredibly tolerant of all sorts of
+# nonsense in the HTML they parse. Effectively, the second <html>, <head> and <body> as just flat
+# out ignored.
+class Map(folium.Map):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Drop the glyph CSS
+        fixed_css = []
+        for name, url in self.default_css:
+            logger.debug(name)
+            if name != 'glyphicons_css':
+                fixed_css.append((name, url))
+
+        self.default_css = fixed_css
+
+
 @dataclass
 class Closure:
     """
     A single road closure object with the associated information for plotting.
-    
+
     Args:
         location (list): List of API closure output.
         cause (str): The cause of the current closure.
@@ -144,7 +165,7 @@ class Closure:
     def from_dict(self, dictionary):
         """
         Load closures from a dictionary into an instance of this object.
-        
+
         Args:
             dictionary (dict): The dictionary from which to re-populate the attributes of this dataclass.
 
@@ -158,7 +179,7 @@ class Closure:
 class Closures:
     """
     Closures from the National Highways Agency API with some convenience methods.
-    
+
     Args:
         key (str): The subscription key for the API.
         api_url (str, optional): The URL from which to fetch the closures.
@@ -169,7 +190,7 @@ class Closures:
     Methods:
         refresh_closures: Reload closures from the API or load from disk.
         process_closures: Extract the closures of interest and save to disk.
-        load_closures: Load processed closures from disk and populate object.    
+        load_closures: Load processed closures from disk and populate object.
 
     """
 
@@ -353,13 +374,15 @@ async def map() -> str:
 
     """
 
-    m = folium.Map(
+    # Fetch, process and style all the road closures from the API
+    closures = Closures(app.key)
+
+    # Use our customised Map class (no default CSS)
+    m = Map(
         # Start focused on London
         location=[51.509865, -0.118092],
         zoom_start=7,  # most of the country
     )
-
-    closures = Closures(app.key)
 
     map_file = Path("map.html")
 
@@ -387,11 +410,11 @@ async def map() -> str:
                 tooltip=folium.Tooltip(tooltip_content),
             ).add_to(m)
 
-        logger.info("Rendering HTML string")
-        map_html = m.get_root().render()
-        logger.info("Rendered HTML string")
+        logger.info("Rendering HTML template")
+        map_html = flask.render_template("index.html", map_html=m.get_root().render())
+        logger.info("Rendered HTML template")
         logger.info("Saving HTML to disk")
-        m.save(map_file)
+        map_file.write_text(map_html)
         logger.info("Saved HTML to disk")
     else:
         logger.info("Loading HTML from disk")
@@ -399,9 +422,7 @@ async def map() -> str:
         logger.info("Loaded HTML from disk")
 
     # Render the template with the map
-    response = flask.make_response(
-        flask.render_template("index.html", map_html=map_html)
-    )
+    response = flask.make_response(map_html)
     response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
 
     return response
