@@ -7,3 +7,4 @@ venv*
 .venv
 *.json
 .env
+map.html
