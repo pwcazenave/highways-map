@@ -367,7 +367,9 @@ async def map() -> str:
         m.save(Path("map.html"))
         logger.info("Saved HTML to disk")
     else:
+        logger.info("Loading HTML from disk")
         map_html = Path("map.html").read_text()
+        logger.info("Loaded HTML from disk")
 
     # Render the template with the map
     response = flask.make_response(
