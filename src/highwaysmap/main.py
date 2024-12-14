@@ -18,6 +18,7 @@ import flask
 import folium
 import requests
 from flask_compress import Compress
+from waitress import serve
 
 
 logging.basicConfig(
@@ -43,11 +44,19 @@ def run() -> None:
 
     """
 
-    app.run(
-        host=os.environ.get("HOST", "127.0.0.1"),
-        port=int(os.environ.get("PORT", 5000)),
-        use_reloader=bool(os.environ.get("RELOADER", True)),
-    )
+    if os.environ.get("LOGLEVEL") == "DEBUG":
+        app.run(
+            host=os.environ.get("HOST", "127.0.0.1"),
+            port=int(os.environ.get("PORT", 5000)),
+            use_reloader=bool(os.environ.get("RELOADER", True)),
+        )
+    else:
+        serve(
+            app,
+            host=os.environ.get("HOST", "127.0.0.1"),
+            port=int(os.environ.get("PORT", 5000)),
+            threads=os.environ.get("THREADS", 50),
+        )
 
 
 @dataclass
@@ -63,8 +72,8 @@ class Closure:
     end: str
     comment: list[dict]
 
-    info: Optional[dict] = field(init=False, default_factory=dict)
-    road_names: Optional[list] = field(default_factory=list)
+    info: dict = field(init=False, default_factory=dict)
+    road_names: list = field(init=False, default_factory=list)
 
     # For sections with some open lanes, make them more see through; otherwise, make them opaque.
     opacity: dict = field(default_factory=lambda: {"open": 0.25, "closed": 1})
@@ -150,7 +159,7 @@ class Closures:
     time_format: Optional[str] = "%d/%m/%Y %H:%M"
 
     # Store whether we've fetched new data from the API data or not
-    refreshed: Optional[bool] = field(default=False, init=False)
+    refreshed: bool = field(default=False, init=False)
 
     # Give some default colours for various closure types.
     colours: dict = field(
