@@ -63,6 +63,17 @@ def run() -> None:
 class Closure:
     """
     A single road closure object with the associated information for plotting.
+    
+    Args:
+        location (list): List of API closure output.
+        cause (str): The cause of the current closure.
+        start (str): The start time of the closure (ISO format)
+        end (str): The end time of the closure (ISO format)
+        comment (list[dict]): Any comments as a list of dictionaries: {"comment": "The comment"}.
+
+    Methods:
+        process: Process the closures.
+        from_dict: Populate an instance of this object with data from a dictionary.
 
     """
 
@@ -133,20 +144,35 @@ class Closure:
             for i in range(0, len(flat_coordinates), 2)
         ]
 
-    def from_dict(self, dict):
+    def from_dict(self, dictionary):
         """
         Load closures from a dictionary into an instance of this object.
+        
+        Args:
+            dictionary (dict): The dictionary from which to re-populate the attributes of this dataclass.
 
         """
 
-        for k, v in dict.items():
+        for k, v in dictionary.items():
             setattr(self, k, v)
 
 
 @dataclass
 class Closures:
     """
-    Closures from the National Highways Agency API with some convenience functions.
+    Closures from the National Highways Agency API with some convenience methods.
+    
+    Args:
+        key (str): The subscription key for the API.
+        api_url (str, optional): The URL from which to fetch the closures.
+        closures_file (Path, optional): File to store the closure JSON in. Defaults to closures.json.
+        processed_file (Path, optional) = File to store the processed closure JSON in. Defaults to processed.json.
+        time_format (str, optional): The time string formatting for the tooltip. Defaults to "%d/%m/%Y %H:%M".
+
+    Methods:
+        refresh_closures: Reload closures from the API or load from disk.
+        process_closures: Extract the closures of interest and save to disk.
+        load_closures: Load processed closures from disk and populate object.    
 
     """
 
