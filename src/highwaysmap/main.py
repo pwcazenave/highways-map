@@ -209,6 +209,11 @@ class Closures:
         if self.closures_file.exists() and self.closures_file.stat().st_size == 0:
             self.closures_file.unlink()
 
+        if self.closures_file.exists():
+            closures_updated_time = datetime.fromtimestamp(self.closures_file.stat().st_ctime, ZoneInfo("Europe/London"))
+        else:
+            closures_updated_time = now
+
         headers = {
             "X-Response-MediaType": "application/json",
             "X-Djson-Format": "DATEXII",
@@ -216,7 +221,6 @@ class Closures:
             "Ocp-Apim-Subscription-Key": self.key,
         }
 
-        closures_updated_time = datetime.fromtimestamp(self.closures_file.stat().st_ctime, ZoneInfo("Europe/London"))
         if not self.closures_file.exists():
             logger.info("Initial API raw closure fetch")
             self.closures_payload = requests.get(self.api_url, headers=headers).json()
