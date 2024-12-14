@@ -105,13 +105,10 @@ class Closure:
             logger.debug("      Processing %d of %d road names", iiii, total_road_names)
             if point["linearElement"]["roadName"] not in self.road_names:
                 self.road_names.append(point["linearElement"]["roadName"])
-        flat_coordinates = location["locationReferencingLinearLocation"][
-            "gmlLineString"
-        ]["posList"].split()
+        flat_coordinates = location["locationReferencingLinearLocation"]["gmlLineString"]["posList"].split()
         lanes = {"open": [], "closed": []}
         total_carriageways = len(location["locationReferencingLinearLocation"]["supplementaryPositionalDescription"]["carriageway"])
-        for iiiii, carriageway in enumerate(
-            location["locationReferencingLinearLocation"]["supplementaryPositionalDescription"]["carriageway"], 1):
+        for iiiii, carriageway in enumerate(location["locationReferencingLinearLocation"]["supplementaryPositionalDescription"]["carriageway"], 1):
             logger.debug("      Processing %d of %d carriageways", iiiii, total_carriageways)
             if "_carriagewayExtensionG" in carriageway:
                 lanes["open"].append(carriageway["_carriagewayExtensionG"]["numberOfOperationalLanes"])
@@ -285,9 +282,7 @@ class Closures:
         now = datetime.now(ZoneInfo("Europe/London"))
 
         total_situations = len(self.closures_payload["D2Payload"]["situation"])
-        for i, situation in enumerate(
-            self.closures_payload["D2Payload"]["situation"], 1
-        ):
+        for i, situation in enumerate(self.closures_payload["D2Payload"]["situation"], 1):
             logger.debug("Processing %d of %d situations", i, total_situations)
             total_situation_records = len(situation["situationRecord"])
             for ii, locations in enumerate(situation["situationRecord"], 1):
@@ -311,8 +306,7 @@ class Closures:
                 cause = locations["cause"]["causeType"]
 
                 total_groups = len(locations["locationReference"]["locationReferencingLocationGroupByList"]["locationContainedInGroup"])
-                for iii, location_group in enumerate(
-                    locations["locationReference"]["locationReferencingLocationGroupByList"]["locationContainedInGroup"], 1):
+                for iii, location_group in enumerate(locations["locationReference"]["locationReferencingLocationGroupByList"]["locationContainedInGroup"], 1):
                     logger.debug("    Processing %d of %d location groups", iii, total_groups)
                     self.closures.append(
                         Closure(
@@ -405,6 +399,7 @@ async def map() -> str:
         flask.render_template("index.html", map_html=map_html)
     )
     response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+
     return response
 
 
