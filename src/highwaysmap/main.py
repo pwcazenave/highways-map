@@ -175,14 +175,15 @@ class Closures:
 
     key: str
     api_url: Optional[str] = ("https://api.data.nationalhighways.co.uk/roads/v1.0/closures")
-    closures_payload: dict = field(default_factory=dict)
     closures_file: Optional[Path] = field(default=Path("closures.json"))
     processed_file: Optional[Path] = field(default=Path("processed.json"))
-    closures: Optional[list[dict]] = field(default_factory=list)
     time_format: Optional[str] = "%d/%m/%Y %H:%M"
 
+    closures_payload: dict = field(init=False, default_factory=dict)
+    closures: Optional[list[dict]] = field(init=False, default_factory=list)
+
     # Store whether we've fetched new data from the API data or not
-    refreshed: bool = field(default=False, init=False)
+    refreshed: bool = field(init=False, default=False)
 
     # Give some default colours for various closure types.
     colours: dict = field(
