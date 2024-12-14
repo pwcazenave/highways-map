@@ -288,7 +288,6 @@ class Closures:
                 for iii, location_group in enumerate(
                     locations["locationReference"]["locationReferencingLocationGroupByList"]["locationContainedInGroup"], 1):
                     logger.debug("    Processing %d of %d location groups", iii, total_groups)
-                    logger.info(comment)
                     self.closures.append(
                         Closure(
                             location_group,
