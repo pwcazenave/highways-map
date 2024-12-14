@@ -343,6 +343,7 @@ class Closures:
 
 
 @app.route("/")
+@app.route("/map")
 async def map() -> str:
     """
     Render a map.
@@ -406,8 +407,6 @@ async def map() -> str:
 
 @app.route("/contact")
 @app.route("/data")
-@app.route("/map")
-@app.route("/")
 async def placeholder() -> None:
     """
     Placeholder function which just calls the map page.
