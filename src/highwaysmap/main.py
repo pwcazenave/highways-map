@@ -335,7 +335,7 @@ class Closures:
         if self.processed_file.exists():
             closures = json.loads(self.processed_file.read_text())
             for closure in closures:
-                # logger.info(closure)
+                # Create an empty Closure object and then populate it from the JSON dictionary
                 c = Closure({}, "", "", "", [{"comment": ""}])
                 c.from_dict(closure)
                 self.closures.append(c)
