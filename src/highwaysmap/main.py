@@ -361,7 +361,9 @@ async def map() -> str:
 
     closures = Closures(app.key)
 
-    if closures.refreshed:
+    map_file = Path("map.html")
+
+    if closures.refreshed or not map_file.exists():
         for i, closure in enumerate(closures.closures, 1):
             logger.debug("Processing %d of %d closures", i, closures.total_closures)
 
@@ -389,11 +391,11 @@ async def map() -> str:
         map_html = m.get_root().render()
         logger.info("Rendered HTML string")
         logger.info("Saving HTML to disk")
-        m.save(Path("map.html"))
+        m.save(map_file)
         logger.info("Saved HTML to disk")
     else:
         logger.info("Loading HTML from disk")
-        map_html = Path("map.html").read_text()
+        map_html = map_file.read_text()
         logger.info("Loaded HTML from disk")
 
     # Render the template with the map
