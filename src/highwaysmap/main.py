@@ -255,8 +255,10 @@ class Closures:
             self.closures_file.unlink()
 
         if self.closures_file.exists():
-            closures_updated_time = datetime.fromtimestamp(self.closures_file.stat().st_ctime, ZoneInfo("Europe/London"))
+            closures_updated_time = datetime.fromtimestamp(self.closures_file.stat().st_mtime, ZoneInfo("Europe/London"))
+            logger.info("Existing closures file created %f days ago", (now - closures_updated_time).total_seconds() / 86400)
         else:
+            logger.info("No existing closures file found")
             closures_updated_time = now
 
         headers = {
@@ -271,7 +273,7 @@ class Closures:
             self.closures_payload = requests.get(self.api_url, headers=headers).json()
             self.closures_file.write_text(json.dumps(self.closures_payload))
             self.refreshed = True
-        elif self.closures_file.exists() and closures_updated_time < now - relativedelta(days=1):
+        elif self.closures_file.exists() and closures_updated_time < (now - relativedelta(days=1)):
             logger.info("Fresh raw closures API fetch")
             self.closures_payload = requests.get(self.api_url, headers=headers).json()
             self.closures_file.write_text(json.dumps(self.closures_payload))
