@@ -443,5 +443,28 @@ async def placeholder() -> None:
     return await map()
 
 
+@app.route("/robots.txt")
+async def robots() -> None:
+    """
+    Spit back a robots.txt.
+
+    """
+
+    user_agents = [
+        "User-agent: GPTBot",
+        "User-agent: ChatGPT-User",
+        "User-agent: Google-Extended",
+        "User-agent: CCBot",
+        "User-agent: PerplexityBot",
+        "User-agent: anthropic-ai",
+        "User-agent: Claude-Web",
+        "User-agent: ClaudeBot"
+    ]
+
+    robots_txt = '\nDisallow: /\n'.join(user_agents)
+
+    return flask.Response(robots_txt)
+
+
 if __name__ == "__main__":
     run()
