@@ -269,12 +269,15 @@ class Closures:
             "Ocp-Apim-Subscription-Key": self.key,
         }
 
+        # New closure information is published at 1400 daily. Check the existing closures file we have an adjust if we
+        # need to fetch new data. Check for that is if the file is more than 24 hours old _and_ we're beyond 1359
+        # (i.e. hour is greater than 13) or just that the file is over 24 hours old.
         if not self.closures_file.exists():
             logger.info("Initial API raw closure fetch")
             self.closures_payload = requests.get(self.api_url, headers=headers).json()
             self.closures_file.write_text(json.dumps(self.closures_payload))
             self.refreshed = True
-        elif self.closures_file.exists() and closures_updated_time < (now - relativedelta(days=1)):
+        elif self.closures_file.exists() and closures_updated_time < (now - relativedelta(days=1)) or (now.hour > 13 and closures_updated_time < (now - relativedelta(days=1))):
             logger.info("Fresh raw closures API fetch")
             self.closures_payload = requests.get(self.api_url, headers=headers).json()
             self.closures_file.write_text(json.dumps(self.closures_payload))
